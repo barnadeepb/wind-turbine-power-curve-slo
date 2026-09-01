@@ -1,0 +1,20 @@
+# credentials — never commit
+.gh/
+
+# raw and intermediate data — fetched via scripts/download_data.py, not tracked
+data/raw/
+data/processed/
+
+# python
+.venv/
+__pycache__/
+*.pyc
+
+# training artifacts (large; regenerate via scripts)
+results/checkpoints/
+*.pt
+*.pkl
+
+# OS / editor
+.DS_Store
+Thumbs.db
