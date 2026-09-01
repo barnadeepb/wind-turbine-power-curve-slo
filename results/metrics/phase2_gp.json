@@ -1,11 +1,13 @@
 {
-  "rmse_kw": 8.70207709424978,
-  "mae_kw": 6.18293618459158,
-  "r2": 0.9926967104180572,
-  "shortfall_kwh": 46588.87879547364,
-  "expected_kwh": 1972736.252180106,
-  "shortfall_pct": 2.3616374841790146,
-  "train_seconds": 1074.2421870231628,
+  "rmse_kw": 8.702069014066161,
+  "mae_kw": 6.1829303268642155,
+  "r2": 0.9926967239807716,
+  "shortfall_kwh": 46588.87666617222,
+  "expected_kwh": 1972736.3185022364,
+  "shortfall_pct": 2.3616372968458332,
+  "train_seconds": 6712.224292039871,
+  "inference_seconds_total": 16.335904598236084,
+  "inference_ms_per_sample": 0.2259617483676061,
   "n_gp_points": 10477,
-  "mean_predictive_std_kw": 4.605268633473216
+  "mean_predictive_std_kw": 4.605270346200327
 }

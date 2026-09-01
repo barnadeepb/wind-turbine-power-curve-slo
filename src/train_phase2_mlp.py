@@ -46,17 +46,32 @@ def main() -> None:
 
     t0 = time.time()
     model, device = train_mlp(X_tr, y_tr, X_val, y_val, epochs=80, patience=10)
+    train_s = time.time() - t0
     print(f"device used: {device}")
 
     import torch
     model.eval()
+    X_test_t = torch.tensor(X_test, device=device)
+    infer_times = []
     with torch.no_grad():
-        pred = model(torch.tensor(X_test, device=device)).cpu().numpy()
+        for _ in range(10):
+            if device == "cuda":
+                torch.cuda.synchronize()
+            t0 = time.perf_counter()
+            pred_t = model(X_test_t)
+            if device == "cuda":
+                torch.cuda.synchronize()
+            infer_times.append(time.perf_counter() - t0)
+        pred = pred_t.cpu().numpy()
+    infer_total = float(np.median(infer_times))
+    infer_ms = (infer_total / len(y_test)) * 1000
 
     result = {
         **regression_metrics(y_test, pred),
         **energy_loss_kwh(y_test, pred),
-        "train_seconds": time.time() - t0,
+        "train_seconds": train_s,
+        "inference_seconds_total": infer_total,
+        "inference_ms_per_sample": infer_ms,
         "device": device,
     }
     print("mlp:", result)
@@ -64,7 +79,9 @@ def main() -> None:
     RESULTS_DIR.joinpath("metrics").mkdir(parents=True, exist_ok=True)
     with open(RESULTS_DIR / "metrics" / "phase2_mlp.json", "w") as f:
         json.dump(result, f, indent=2)
-    print("Saved results/metrics/phase2_mlp.json")
+    np.savez(RESULTS_DIR / "metrics" / "phase2_mlp_predictions.npz",
+             wind_speed_test=test["wind_speed_corrected"].values, y_test=y_test, mlp=pred)
+    print("Saved results/metrics/phase2_mlp.json and predictions")
 
 
 if __name__ == "__main__":

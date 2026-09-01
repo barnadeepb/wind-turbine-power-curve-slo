@@ -18,3 +18,7 @@ results/checkpoints/
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# Word lock files, Claude Code internals
+~$*
+.claude/

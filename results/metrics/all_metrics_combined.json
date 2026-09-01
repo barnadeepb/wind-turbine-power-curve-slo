@@ -47,5 +47,37 @@
     "train_seconds": 3.9618422985076904,
     "inference_seconds_total": 0.2608796499989694,
     "inference_ms_per_sample": 0.0036085434677221024
+  },
+  "mlp": {
+    "rmse_kw": 13.342236518859863,
+    "mae_kw": 9.0196533203125,
+    "r2": 0.982831597328186,
+    "shortfall_kwh": 77712.4921875,
+    "expected_kwh": 2000803.375,
+    "shortfall_pct": 3.8840644292445776,
+    "train_seconds": 31.1045925617218,
+    "inference_seconds_total": 0.002291450000484474,
+    "inference_ms_per_sample": 3.1695829593809725e-05,
+    "device": "cuda"
+  },
+  "heteroscedastic_gp": {
+    "rmse_kw": 8.702069014066161,
+    "mae_kw": 6.1829303268642155,
+    "r2": 0.9926967239807716,
+    "shortfall_kwh": 46588.87666617222,
+    "expected_kwh": 1972736.3185022364,
+    "shortfall_pct": 2.3616372968458332,
+    "train_seconds": 6712.224292039871,
+    "inference_seconds_total": 16.335904598236084,
+    "inference_ms_per_sample": 0.2259617483676061,
+    "n_gp_points": 10477,
+    "mean_predictive_std_kw": 4.605270346200327
+  },
+  "automl": {
+    "rmse_kw": 8.035419,
+    "r2": 0.9940511,
+    "mae_kw": 5.7871127,
+    "train_seconds": 8692.916447162628,
+    "inference_ms_per_sample": null
   }
 }

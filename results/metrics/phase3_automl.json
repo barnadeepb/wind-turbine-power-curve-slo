@@ -1,0 +1,12 @@
+{
+  "model_resource_name": "projects/790973489130/locations/us-central1/models/2069554112113934336",
+  "train_seconds": 8692.916447162628,
+  "budget_milli_node_hours": 1000,
+  "vertex_metrics": {
+    "rootMeanSquaredLogError": 0.0662234,
+    "rSquared": 0.9940511,
+    "meanAbsoluteError": 5.7871127,
+    "rootMeanSquaredError": 8.035419,
+    "meanAbsolutePercentageError": 4.8113894
+  }
+}
