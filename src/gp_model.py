@@ -46,20 +46,31 @@ def stratified_subsample(wind_speed: np.ndarray, n_target: int, bin_width: float
     return chosen
 
 
-def _fit_exact_gp(x, y, likelihood, iters=150, lr=0.05):
-    model = _ExactGP(x, y, likelihood)
+def _fit_exact_gp(x, y, likelihood, iters=150, lr=0.05, patience=15, min_delta=1e-3):
+    model = _ExactGP(x, y, likelihood).double()  # likelihood alone isn't enough — kernel params default to float32
     model.train()
     likelihood.train()
     opt = torch.optim.Adam(model.parameters(), lr=lr)
     mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
+    best_loss = float("inf")
+    stall = 0
     for i in range(iters):
         opt.zero_grad()
         output = model(x)
         loss = -mll(output, y)
         loss.backward()
         opt.step()
-        if (i + 1) % 25 == 0:
-            print(f"    gp iter {i + 1}/{iters}  loss={loss.item():.3f}")
+        loss_val = loss.item()
+        if (i + 1) % 10 == 0:
+            print(f"    gp iter {i + 1}/{iters}  loss={loss_val:.4f}", flush=True)
+        if loss_val < best_loss - min_delta:
+            best_loss = loss_val
+            stall = 0
+        else:
+            stall += 1
+            if stall >= patience:
+                print(f"    converged at iter {i + 1}/{iters} (loss flat for {patience} iters)", flush=True)
+                break
     model.eval()
     likelihood.eval()
     return model
@@ -73,7 +84,7 @@ def fit_heteroscedastic_gp(wind_speed: np.ndarray, power: np.ndarray, n_subsampl
     y_mean, y_std = y.mean(), y.std()
     y_norm = (y - y_mean) / y_std
 
-    print("  stage 1: homoskedastic GP")
+    print("  stage 1: homoskedastic GP", flush=True)
     lik1 = gpytorch.likelihoods.GaussianLikelihood().double()
     model1 = _fit_exact_gp(x, y_norm, lik1)
 
@@ -83,14 +94,14 @@ def fit_heteroscedastic_gp(wind_speed: np.ndarray, power: np.ndarray, n_subsampl
     # floor to avoid log(0); noise model works in log-variance space
     log_noise_target = torch.log(resid_sq.clamp_min(1e-4))
 
-    print("  stage 2: noise-level GP (models log residual variance vs wind speed)")
+    print("  stage 2: noise-level GP (models log residual variance vs wind speed)", flush=True)
     lik2 = gpytorch.likelihoods.GaussianLikelihood().double()
     noise_model = _fit_exact_gp(x, log_noise_target, lik2, iters=100)
     with torch.no_grad(), gpytorch.settings.fast_pred_var():
         est_log_noise = lik2(noise_model(x)).mean
     est_noise = torch.exp(est_log_noise).clamp_min(1e-4)
 
-    print("  stage 3: refit main GP with fixed heteroscedastic noise")
+    print("  stage 3: refit main GP with fixed heteroscedastic noise", flush=True)
     lik3 = gpytorch.likelihoods.FixedNoiseGaussianLikelihood(noise=est_noise).double()
     model3 = _fit_exact_gp(x, y_norm, lik3)
 
@@ -102,14 +113,29 @@ def fit_heteroscedastic_gp(wind_speed: np.ndarray, power: np.ndarray, n_subsampl
     }
 
 
-def predict(fitted, wind_speed: np.ndarray):
-    """Returns (mean_power, std_power) — std is the condition-appropriate SLO band."""
-    x = torch.tensor(wind_speed, dtype=torch.float64).unsqueeze(-1)
+def predict(fitted, wind_speed: np.ndarray, batch_size: int = 2000):
+    """Returns (mean_power, std_power) — std is the condition-appropriate SLO band.
+
+    Batched: predicting all test points in one call makes GPyTorch build an
+    O(n_test^2) test-test covariance internally — fine for hundreds of
+    points, not for tens of thousands (72,295 points blew past 40GB before
+    this fix). Batching keeps each call's footprint bounded regardless of
+    total test set size.
+    """
     model, lik = fitted["mean_model"], fitted["mean_likelihood"]
     noise_model, noise_lik = fitted["noise_model"], fitted["noise_likelihood"]
-    with torch.no_grad(), gpytorch.settings.fast_pred_var():
-        mean_norm = lik(model(x)).mean
-        log_noise = noise_lik(noise_model(x)).mean
-    mean = mean_norm * fitted["y_std"] + fitted["y_mean"]
-    std = torch.sqrt(torch.exp(log_noise)) * fitted["y_std"]
-    return mean.numpy(), std.numpy()
+
+    means, stds = [], []
+    n = len(wind_speed)
+    for start in range(0, n, batch_size):
+        chunk = wind_speed[start:start + batch_size]
+        x = torch.tensor(chunk, dtype=torch.float64).unsqueeze(-1)
+        with torch.no_grad(), gpytorch.settings.fast_pred_var():
+            mean_norm = lik(model(x)).mean
+            log_noise = noise_lik(noise_model(x)).mean
+        means.append((mean_norm * fitted["y_std"] + fitted["y_mean"]).numpy())
+        stds.append((torch.sqrt(torch.exp(log_noise)) * fitted["y_std"]).numpy())
+        if start % (batch_size * 10) == 0:
+            print(f"    predicted {min(start + batch_size, n):,}/{n:,}", flush=True)
+
+    return np.concatenate(means), np.concatenate(stds)
