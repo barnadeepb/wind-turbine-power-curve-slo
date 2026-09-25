@@ -9,7 +9,7 @@ sustained deviation is scored as a burn rate rather than a binary fault flag.
 
 Wind turbine SCADA condition-monitoring datasets are typically extremely
 imbalanced toward rare failure events (in this dataset: 28 confirmed
-failures against ~3.3M ten-minute readings). Framing the problem as
+failures against ~213,000 ten-minute readings). Framing the problem as
 continuous underperformance detection instead of rare-event classification
 uses every row as a valid training example, and produces an interpretable,
 operationally actionable signal (estimated energy loss) rather than a
@@ -50,4 +50,5 @@ paper/          IEEE conference paper
 
 ## Status
 
-Work in progress.
+Accepted at ICRERA 2026 (15th International Conference on Renewable Energy
+Research and Applications), Paris, Oct 12-15, 2026.
