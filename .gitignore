@@ -22,3 +22,6 @@ Thumbs.db
 # Word lock files, Claude Code internals
 ~$*
 .claude/
+
+# paper drafts, reviewer comments, submission copies — not for the public repo
+paper/
