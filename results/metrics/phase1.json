@@ -1,51 +1,51 @@
 {
   "iec_binned": {
-    "rmse_kw": 54.49846796708393,
-    "mae_kw": 42.54417147193453,
-    "r2": 0.7135549935372025,
-    "shortfall_kwh": 508775.48931246484,
-    "expected_kwh": 2458986.889031012,
-    "shortfall_pct": 20.690451485609703,
-    "train_seconds": 0.017757177352905273,
-    "inference_seconds_total": 0.005372750005335547,
-    "inference_ms_per_sample": 7.431703444685729e-05
+    "rmse_kw": 15.698929767577129,
+    "mae_kw": 12.081028671403311,
+    "r2": 0.9762308987171251,
+    "shortfall_kwh": 137724.3183675491,
+    "expected_kwh": 2083940.0319352476,
+    "shortfall_pct": 6.608842685345971,
+    "train_seconds": 0.0,
+    "inference_seconds_total": 0.0014062998816370964,
+    "inference_ms_per_sample": 1.945224263969979e-05
   },
   "parametric_logistic": {
-    "rmse_kw": 9.29164106434868,
-    "mae_kw": 6.883154201751836,
-    "r2": 0.9916735952659218,
-    "shortfall_kwh": 49252.40121227335,
-    "expected_kwh": 1969626.2534219383,
-    "shortfall_pct": 2.5005962997652214,
-    "train_seconds": 0.3198254108428955,
-    "inference_seconds_total": 0.0013625499850604683,
-    "inference_ms_per_sample": 1.8847084653993614e-05,
+    "rmse_kw": 9.291642099021328,
+    "mae_kw": 6.883154544344623,
+    "r2": 0.9916735934115446,
+    "shortfall_kwh": 49252.40122814701,
+    "expected_kwh": 1969626.2493257283,
+    "shortfall_pct": 2.5005963057716065,
+    "train_seconds": 0.09505033493041992,
+    "inference_seconds_total": 0.00045629998203366995,
+    "inference_ms_per_sample": 6.311639560601285e-06,
     "params": [
-      345.38338272957344,
-      1.7852071913760492,
-      3.1347451204246854
+      345.38334259709706,
+      8.286197158801496,
+      0.6753605639754613
     ]
   },
   "random_forest": {
-    "rmse_kw": 8.706848097541808,
-    "mae_kw": 6.147232112565289,
-    "r2": 0.9926887000154702,
-    "shortfall_kwh": 38353.5590459171,
-    "expected_kwh": 1956695.816995516,
-    "shortfall_pct": 1.9601186200115943,
-    "train_seconds": 16.401783227920532,
-    "inference_seconds_total": 0.6229547999973875,
-    "inference_ms_per_sample": 0.008616844871670066
+    "rmse_kw": 8.700186280194233,
+    "mae_kw": 6.143389698467872,
+    "r2": 0.9926998838356665,
+    "shortfall_kwh": 38307.75371004036,
+    "expected_kwh": 1956650.504211625,
+    "shortfall_pct": 1.9578230055691699,
+    "train_seconds": 10.99843168258667,
+    "inference_seconds_total": 0.48185119999106973,
+    "inference_ms_per_sample": 0.006665069506758001
   },
   "xgboost": {
-    "rmse_kw": 8.52323565939478,
-    "mae_kw": 6.0255926506098945,
-    "r2": 0.9929938140286569,
-    "shortfall_kwh": 38883.57652983093,
-    "expected_kwh": 1959221.5,
-    "shortfall_pct": 1.9846442339383743,
-    "train_seconds": 3.9618422985076904,
-    "inference_seconds_total": 0.2608796499989694,
-    "inference_ms_per_sample": 0.0036085434677221024
+    "rmse_kw": 8.5212250141929,
+    "mae_kw": 6.0333103055009865,
+    "r2": 0.992997119180175,
+    "shortfall_kwh": 38618.63807739766,
+    "expected_kwh": 1958598.75,
+    "shortfall_pct": 1.971748326572641,
+    "train_seconds": 2.682986259460449,
+    "inference_seconds_total": 0.1813059999840334,
+    "inference_ms_per_sample": 0.002507863614136986
   }
 }

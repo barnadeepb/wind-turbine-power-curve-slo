@@ -1,0 +1,83 @@
+{
+  "iec_binned": {
+    "rmse_kw": 54.49846796708393,
+    "mae_kw": 42.54417147193453,
+    "r2": 0.7135549935372025,
+    "shortfall_kwh": 508775.48931246484,
+    "expected_kwh": 2458986.889031012,
+    "shortfall_pct": 20.690451485609703,
+    "train_seconds": 0.017757177352905273,
+    "inference_seconds_total": 0.005372750005335547,
+    "inference_ms_per_sample": 7.431703444685729e-05
+  },
+  "parametric_logistic": {
+    "rmse_kw": 9.29164106434868,
+    "mae_kw": 6.883154201751836,
+    "r2": 0.9916735952659218,
+    "shortfall_kwh": 49252.40121227335,
+    "expected_kwh": 1969626.2534219383,
+    "shortfall_pct": 2.5005962997652214,
+    "train_seconds": 0.3198254108428955,
+    "inference_seconds_total": 0.0013625499850604683,
+    "inference_ms_per_sample": 1.8847084653993614e-05,
+    "params": [
+      345.38338272957344,
+      1.7852071913760492,
+      3.1347451204246854
+    ]
+  },
+  "random_forest": {
+    "rmse_kw": 8.706848097541808,
+    "mae_kw": 6.147232112565289,
+    "r2": 0.9926887000154702,
+    "shortfall_kwh": 38353.5590459171,
+    "expected_kwh": 1956695.816995516,
+    "shortfall_pct": 1.9601186200115943,
+    "train_seconds": 16.401783227920532,
+    "inference_seconds_total": 0.6229547999973875,
+    "inference_ms_per_sample": 0.008616844871670066
+  },
+  "xgboost": {
+    "rmse_kw": 8.52323565939478,
+    "mae_kw": 6.0255926506098945,
+    "r2": 0.9929938140286569,
+    "shortfall_kwh": 38883.57652983093,
+    "expected_kwh": 1959221.5,
+    "shortfall_pct": 1.9846442339383743,
+    "train_seconds": 3.9618422985076904,
+    "inference_seconds_total": 0.2608796499989694,
+    "inference_ms_per_sample": 0.0036085434677221024
+  },
+  "mlp": {
+    "rmse_kw": 13.342236518859863,
+    "mae_kw": 9.0196533203125,
+    "r2": 0.982831597328186,
+    "shortfall_kwh": 77712.4921875,
+    "expected_kwh": 2000803.375,
+    "shortfall_pct": 3.8840644292445776,
+    "train_seconds": 31.1045925617218,
+    "inference_seconds_total": 0.002291450000484474,
+    "inference_ms_per_sample": 3.1695829593809725e-05,
+    "device": "cuda"
+  },
+  "heteroscedastic_gp": {
+    "rmse_kw": 8.702069014066161,
+    "mae_kw": 6.1829303268642155,
+    "r2": 0.9926967239807716,
+    "shortfall_kwh": 46588.87666617222,
+    "expected_kwh": 1972736.3185022364,
+    "shortfall_pct": 2.3616372968458332,
+    "train_seconds": 6712.224292039871,
+    "inference_seconds_total": 16.335904598236084,
+    "inference_ms_per_sample": 0.2259617483676061,
+    "n_gp_points": 10477,
+    "mean_predictive_std_kw": 4.605270346200327
+  },
+  "automl": {
+    "rmse_kw": 8.035419,
+    "r2": 0.9940511,
+    "mae_kw": 5.7871127,
+    "train_seconds": 8692.916447162628,
+    "inference_ms_per_sample": null
+  }
+}

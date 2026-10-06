@@ -1,0 +1,34 @@
+{
+  "k": 2.0,
+  "theta": 0.98,
+  "coverage_two_sided": 0.7853655162874335,
+  "coverage_1sigma": 0.4864790096133896,
+  "overall_burn_rate_if_stationary": 10.73172418562832,
+  "diagnostic_k_for_95pct_coverage_test": 3.406360849537582,
+  "diagnostic_k_for_98pct_coverage_test": 4.265572396682359,
+  "by_turbine_outside_pct": {
+    "T01": 34.86058016640432,
+    "T06": 11.958558359969139,
+    "T07": 16.25162346829296,
+    "T11": 22.882264636500107
+  },
+  "case": {
+    "turbine": "T07",
+    "record_start": "2017-08-10 07:30:00+00:00",
+    "record_end": "2017-08-20 06:00:00+00:00",
+    "n_readings": 1004,
+    "outside_pct_window": 21.314741035856574,
+    "outside_pct_last24h": 29.78723404255319,
+    "outside_pct_rest_of_2017": 15.947321161328942,
+    "mean_short_burn_window": 10.435497078042244,
+    "peak_short_burn_window": 38.46153846153843,
+    "peak_short_burn_at": "2017-08-19 16:30:00+00:00",
+    "mean_short_burn_last24h": 18.08800437804341,
+    "mean_long_burn_last24h": 17.4171733638477,
+    "baseline_burn_rest_of_2017": 7.973660580664464,
+    "days_with_data_gap_over_2h": 7,
+    "share_of_rest_short_burn_above_10x": 0.2356779407363065,
+    "share_of_rest_short_burn_above_15x": 0.1387009877282251,
+    "share_of_rest_short_burn_above_20x": 0.07746183777312182
+  }
+}

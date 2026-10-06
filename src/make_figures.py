@@ -76,12 +76,12 @@ def fig_accuracy_comparison(metrics):
     bars = ax.barh(y, r2, color=colors, height=0.65)
     ax.set_yticks(y); ax.set_yticklabels(labels, fontsize=6.5)
     ax.invert_yaxis()
-    ax.set_xlim(0.65, 1.05)
+    ax.set_xlim(0.96, 1.002)
     ax.set_xlabel("R²", fontsize=7)
     ax.set_title("(b) Test-set R²", fontsize=8)
     ax.tick_params(axis="x", labelsize=6)
     for b, v in zip(bars, r2):
-        ax.text(v + 0.01, b.get_y() + b.get_height() / 2, f"{v:.3f}", va="center", fontsize=6)
+        ax.text(v + 0.0005, b.get_y() + b.get_height() / 2, f"{v:.3f}", va="center", fontsize=6)
 
     fig.tight_layout()
     fig.savefig(FIG_DIR / "fig_accuracy_comparison.svg"); fig.savefig(FIG_DIR / "fig_accuracy_comparison.png", dpi=220)
@@ -93,14 +93,14 @@ def fig_cost_comparison(metrics):
     fig, ax = plt.subplots(figsize=(3.4, 2.6))
     order = [m for m in MODEL_ORDER if m != "automl"]  # automl inference latency not measured
     labels = [MODEL_LABELS[m] for m in order]
-    train_s = [metrics[m]["train_seconds"] for m in order]
+    train_s = [max(metrics[m]["train_seconds"], 0.01) for m in order]  # IEC fit is below timer resolution
     colors = ["#8a8a8a"] * 5 + ["#2E7D4F"]
     bars = ax.bar(labels, train_s, color=colors, width=0.6)
     ax.set_yscale("log")
     ax.set_ylabel("Training time (s, log scale)")
     ax.tick_params(axis="x", labelsize=6.5)
     for b, v in zip(bars, train_s):
-        label = f"{v:.2f}s" if v < 60 else f"{v/60:.1f}min"
+        label = "<0.01 s" if v <= 0.01 else (f"{v:.2f} s" if v < 1 else (f"{v:.0f} s" if v < 60 else f"{v/60:.0f} min"))
         ax.text(b.get_x() + b.get_width() / 2, v * 1.15, label, ha="center", fontsize=6.5)
     fig.tight_layout()
     fig.savefig(FIG_DIR / "fig_cost_comparison.svg"); fig.savefig(FIG_DIR / "fig_cost_comparison.png", dpi=220)
@@ -137,26 +137,21 @@ def fig_power_curve():
 
 
 def fig_burn_rate_case_study():
+    # burn rates come from src/burn_rate_analysis.py: trailing 6 h / 3 d clock-time
+    # windows, two-sided +-2 sigma compliance (see that file's docstring)
     d = np.load(METRICS_DIR / "burn_rate_case_study.npz", allow_pickle=True)
+    an = json.load(open(METRICS_DIR / "burn_rate_analysis.json"))
     ts = d["timestamp"].astype("datetime64[ns]")
     actual, expected, std = d["actual_kw"], d["expected_kw"], d["std_kw"]
-
+    short_burn, long_burn = d["short_burn"], d["long_burn"]
     k = 2.0
-    lower = expected - k * std
-    compliant = actual >= lower
-    theta = 0.98
-    non_compliant = (~compliant).astype(float)
-    # rolling 6-hour (36-sample) short window, 3-day (432-sample) long window burn rate
-    def rolling_burn_rate(x, window, theta):
-        kernel = np.ones(window) / window
-        rate = np.convolve(x, kernel, mode="same")
-        return rate / (1 - theta)
-    short_burn = rolling_burn_rate(non_compliant, 36, theta)
-    long_burn = rolling_burn_rate(non_compliant, 432, theta)
+    shown = ts >= np.datetime64("2017-08-10")
+    ts, actual, expected, std = ts[shown], actual[shown], expected[shown], std[shown]
+    short_burn, long_burn = short_burn[shown], long_burn[shown]
 
     fig, axes = plt.subplots(2, 1, figsize=(7.0, 3.9), sharex=True, gridspec_kw={"height_ratios": [2, 1]})
     bearing_ts = np.datetime64("2017-08-20T06:08")
-    record_end = ts.max()  # data stops here — turbine offline after the logged bearing failure
+    record_end = ts.max()  # data stops here: turbine offline after the logged bearing failure
 
     ax = axes[0]
     ax.plot(ts, actual, color="#2C5F8A", lw=0.8, label="Actual power")
@@ -165,37 +160,23 @@ def fig_burn_rate_case_study():
     ax.axvline(bearing_ts, color="black", lw=0.8, ls="--")
     ax.axvspan(record_end, bearing_ts + np.timedelta64(1, "D"), color="#dddddd", alpha=0.5)
     ax.set_ylabel("Power (kW)")
-    ax.set_title("T07, 2017-08-10 – 2017-08-21 — record ends at the logged bearing failure", fontsize=8)
+    ax.set_title("T07, 2017-08-10 – 2017-08-21: record ends at the logged bearing failure", fontsize=8)
     ax.legend(fontsize=6, loc="lower center", bbox_to_anchor=(0.5, 1.06), ncol=3, frameon=False)
-    ax.annotate("bearing failure\nlogged 08-20 06:08 —\nno further data\n(turbine offline)",
+    ax.annotate("bearing failure\nlogged 08-20 06:08:\nno further data\n(turbine offline)",
                 xy=(bearing_ts, ax.get_ylim()[1] * 0.55), xytext=(8, 0), textcoords="offset points",
                 fontsize=6, va="center")
 
-    day_before = (ts >= bearing_ts - np.timedelta64(1, "D")) & (ts < bearing_ts)
-    mean_24h = float(short_burn[day_before].mean()) if day_before.any() else float("nan")
-    peak_idx = int(np.nanargmax(short_burn))
-    peak_val = float(short_burn[peak_idx])
-    peak_ts = ts[peak_idx]
-
     ax = axes[1]
-    ax.plot(ts, short_burn, color="#B23A2E", lw=0.9, label="6h burn rate")
-    ax.plot(ts, long_burn, color="#2C5F8A", lw=0.9, label="3d burn rate")
+    ax.plot(ts, short_burn, color="#B23A2E", lw=0.9, label="6 h burn rate")
+    ax.plot(ts, long_burn, color="#2C5F8A", lw=0.9, label="3 d burn rate")
     ax.axhline(1.0, color="black", lw=0.6, ls=":")
-    ax.text(bearing_ts - np.timedelta64(2, "D"), 1.0, "1.0× = sustainable rate ", fontsize=5.5, va="bottom", ha="right", color="#333333")
+    base = an["case"]["baseline_burn_rest_of_2017"]
+    ax.axhline(base, color="#555555", lw=0.8, ls="--")
+    ax.text(np.datetime64("2017-08-12T04:00"), base + 0.8, f"T07 baseline, rest of 2017: {base:.1f}×", fontsize=5.5,
+            va="bottom", ha="left", color="#333333")
     ax.axvline(bearing_ts, color="black", lw=0.8, ls="--")
     ax.axvspan(record_end, bearing_ts + np.timedelta64(1, "D"), color="#dddddd", alpha=0.5)
     ax.axvspan(bearing_ts - np.timedelta64(1, "D"), bearing_ts, color="#B23A2E", alpha=0.08)
-    ax.annotate(
-        f"peak {peak_val:.1f}×", xy=(peak_ts, peak_val), xytext=(0, 6), textcoords="offset points",
-        fontsize=6, ha="center", color="#B23A2E", fontweight="bold",
-        arrowprops=dict(arrowstyle="-", color="#B23A2E", lw=0.6),
-    )
-    ax.annotate(
-        f"mean {mean_24h:.1f}×\nin 24h\nbefore\nfailure",
-        xy=(bearing_ts - np.timedelta64(12, "h"), 25),
-        fontsize=5.5, ha="center", va="center", color="#B23A2E",
-        bbox=dict(boxstyle="round,pad=0.2", fc="white", ec="none", alpha=0.75),
-    )
     ax.set_ylabel("Burn rate (×)")
     ax.set_xlabel("Date")
     ax.legend(fontsize=6, loc="upper left", frameon=False, ncol=2)
@@ -206,14 +187,6 @@ def fig_burn_rate_case_study():
     fig.savefig(FIG_DIR / "fig_burn_rate_case_study.svg"); fig.savefig(FIG_DIR / "fig_burn_rate_case_study.png", dpi=220)
     plt.close(fig)
     print("wrote fig_burn_rate_case_study.svg")
-
-    # print real numbers for the paper text
-    day_before = (ts >= bearing_ts - np.timedelta64(1, "D")) & (ts < bearing_ts)
-    print(f"data record ends at: {record_end} (bearing failure logged {bearing_ts}, {(bearing_ts - record_end)})")
-    print(f"mean short burn rate, full window: {short_burn.mean():.2f}x")
-    print(f"mean short burn rate, 24h before bearing failure: {short_burn[day_before].mean():.2f}x")
-    print(f"peak short burn rate in window: {np.nanmax(short_burn):.2f}x")
-    print(f"fraction non-compliant readings overall: {non_compliant.mean()*100:.1f}%")
 
 
 if __name__ == "__main__":

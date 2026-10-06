@@ -8,8 +8,9 @@ sustained deviation is scored as a burn rate rather than a binary fault flag.
 ## Why
 
 Wind turbine SCADA condition-monitoring datasets are typically extremely
-imbalanced toward rare failure events (in this dataset: 28 confirmed
-failures against ~213,000 ten-minute readings). Framing the problem as
+imbalanced toward rare failure events (in this dataset: 21 confirmed
+failures on the four turbines, 28 in the farm's log with 7 on turbine T09,
+against ~213,000 ten-minute readings). Framing the problem as
 continuous underperformance detection instead of rare-event classification
 uses every row as a valid training example, and produces an interpretable,
 operationally actionable signal (estimated energy loss) rather than a

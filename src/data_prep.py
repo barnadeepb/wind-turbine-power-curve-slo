@@ -47,7 +47,12 @@ def load_met_mast() -> pd.DataFrame:
         RAW_DIR / "met_mast_scada_combined.xlsx",
         usecols=["Timestamp", "Avg_AmbientTemp", "Avg_Pressure"],
     )
-    return df.rename(columns={"Avg_AmbientTemp": "mast_temp_c", "Avg_Pressure": "mast_pressure_pa"})
+    df = df.rename(columns={"Avg_AmbientTemp": "mast_temp_c", "Avg_Pressure": "mast_pressure_pa"})
+    # source Avg_Pressure is in hPa (values ~991-1029); the ideal-gas density
+    # below needs Pa. Without this, air density came out ~100x too small and
+    # the "corrected" wind speed was scaled by ~0.21 instead of ~1.
+    df["mast_pressure_pa"] = df["mast_pressure_pa"] * 100.0
+    return df
 
 
 def main() -> None:
